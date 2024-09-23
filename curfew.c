@@ -1125,7 +1125,7 @@ int parseArgBSSID(unsigned char *storage, char *arg)
 {
 	int i, a;
 	char concatenated[2 + 1];
-	char **invalid;
+	char *invalid;
 
 	invalid = malloc(sizeof(invalid));
 	invalid[0] = '\0';
@@ -1136,19 +1136,20 @@ int parseArgBSSID(unsigned char *storage, char *arg)
 	{
 		concatenated[0] = arg[a];
 		concatenated[1] = arg[a + 1];
-		storage[i] = strtoul(concatenated, invalid, 16);
+		storage[i] = strtoul(concatenated, &invalid, 16);
 		a += 3; /* Skips the ':'. */
 
-		if (*invalid[0] != '\0')
+		if (errno)
 		{
+                        perror("invalid");
 			fprintf(stderr, "ERROR: '%s' in '%s' is not valid "
-				"base-16.\n", *invalid, arg);
+				"base-16.\n", invalid, arg);
 			free(invalid);
 			return 0;
 		}
 	}
 
-	free(invalid);
+//	free(invalid);
 	return 1;
 }
 
